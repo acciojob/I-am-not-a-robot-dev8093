@@ -1,165 +1,135 @@
-let container = document.querySelector("main");
-
-let imagesClassNames = ["img1", "img2", "img3", "img4", "img5"] 
-
-let randomIndex =   parseInt(Math.random()*imagesClassNames.length) //0-4 3
-// console.log(randomIndex, imagesClassNames[randomIndex])
-imagesClassNames.push(imagesClassNames[randomIndex]) // ["done", "done", "done", "done", "done", "done"]
-
-// ["done", "done", "done", "img3", "done", "img3"] => set(arr) => done
 
 
-// console.log(imagesClassNames)
+let mainSection = document.querySelector("main");
 
-// reaagrere the array
-let count = 1
-while(true){
-     
-      let set = new Set(imagesClassNames) // ["done", "done", "done", "done", "done", "done"] => {"done"}
-      if(set.size === 1){
-          break
-      }
-     let randomIndex =   parseInt(Math.random()*imagesClassNames.length) // 1, 0,1,1,3
-     if(imagesClassNames[randomIndex] === "done"){
-         continue
-     }
-     let pic = document.createElement("img")
-     pic.className = imagesClassNames[randomIndex] // img2
-     pic.alt = imagesClassNames[randomIndex] // img2
-     pic.id = `img${count++}`
+let imageClassNames = ["img1", "img2", "img3", "img4", "img5"];
 
-     imagesClassNames[randomIndex] = "done"
+let repeatIndex =   parseInt((Math.random() * imageClassNames.length));
 
-    container.append(pic)
+imageClassNames.push(imageClassNames[repeatIndex]);
+
+// console.log(imageClassNames);
 
 
-    pic.addEventListener("click", changeState)
-      
-}
+// [img1, img2, img3, img4, img5, img1]
 
 
-
-// generate an h3: 
-
-let h3 = document.createElement("h3")
-h3.innerText = "Please click on the identical tiles to verify that you are not a robot."
-h3.id = "h"
-container.append(h3)
+let h1 = document.createElement("h1");
+h1.innerText = "I am not a robot";
+mainSection.append(h1);
 
 
-// let previousImageId = null
-let numberOfSelectedImages = 0
-function changeState(e){
-    let clickedImage = e.target
+let i = 0
+let count = 0
 
-     if(clickedImage.classList[1] == "selected"){
-             return
-     }
-
-     numberOfSelectedImages++
-
-    clickedImage.classList.add("selected")
-
+while(count< imageClassNames.length){
    
-
-
-    if(document.querySelector("#reset") == null){
-        let restBtn = document.createElement("button")
-        restBtn.innerText = "Reset"
-        restBtn.id = "reset"
-        container.append(restBtn)
-
-        restBtn.addEventListener("click", reset)
+    let randomIndex = parseInt(Math.random() * imageClassNames.length); // 2
+    // console.log(randomIndex)
+    if(imageClassNames[randomIndex] === -1){
+       continue
     }
+    let img = document.createElement("img");
+    img.className = imageClassNames[randomIndex];
 
-    if(numberOfSelectedImages == 2){
-        let verifyBtn = document.createElement("button")
-        verifyBtn.innerText = "Verify"
-        verifyBtn.id = "verify"
-        container.append(verifyBtn)
+    img.addEventListener("click", selectedImage)
 
-        verifyBtn.addEventListener("click", verify)
-    }
-
-    if(numberOfSelectedImages > 2 && document.querySelector("#verify") != null){
-        let verifyBtn = document.querySelector("#verify")
-        verifyBtn.remove()
-    }
-}
+    imageClassNames[randomIndex] = -1
+    img.id= `pic-${count}`
+    count++
 
 
-function reset(){
-    let selectedImages = document.querySelectorAll(".selected")
-    for(let t of selectedImages){
-        t.classList.remove("selected")
-    }
-
-    let resetBtn = document.querySelector("#reset")
-    resetBtn.remove()
-
-    let verifyBtn = document.querySelector("#verify")
-    if(verifyBtn != null){
-        verifyBtn.remove()
-    }
-
-    numberOfSelectedImages = 0
+    mainSection.append(img)
     
 }
 
+let h3 = document.createElement("h3");
+h3.innerText = "Please click on the identical tiles to verify that you are not a robot."
+h3.id = "h"
+mainSection.append(h3)
 
-function verify(){
-    let selectedImages = document.querySelectorAll(".selected")
-    let para = document.createElement("p")
-    para.id = "para"
-    container.append(para)
 
-    if(selectedImages[0].className == selectedImages[1].className){
-      para.innerText = "You are a human. Congratulations! "
+
+let previousImageIdSet = new Set();
+let clicks = 0
+function selectedImage(e){
+    let selectedImage = e.target;
+     
+    // if(previousImageId != selectedImage.id){
+    //     previousImageId = selectedImage.id; // pic-0
+    //     selectedImage.classList.add("selected");  
+
+    //    console.log("Img Clicked")
+        
+    // }
+
+    if(!previousImageIdSet.has(selectedImage.id)){
+        previousImageIdSet.add(selectedImage.id)
+        selectedImage.classList.add("selected");  
+        clicks++
+
+        
+        if(clicks == 1){
+            let btn = document.createElement("button");
+            btn.innerText = "Reset";
+            btn.id = "reset"
+            mainSection.append(btn)
+            btn.addEventListener("click", reset)
+        }
+
+        if(clicks == 2){
+            let btn = document.createElement("button");
+            btn.innerText = "Verify";
+            btn.id = "verify"
+            mainSection.append(btn)
+            btn.addEventListener("click", verify)
+        }
+
+        if(clicks>2){
+            let verifyBtn = document.getElementById("verify");
+            if(verifyBtn){
+                verifyBtn.remove()
+            }
+            // verifyBtn.style.display = "none"
+        }
+
+    }
+
+}
+
+
+function reset(e){
+   
+    let selectedImages = document.querySelectorAll(".selected");
+
+
+    for(let t of selectedImages){
+        t.classList.remove("selected");
+    }
+
+    e.target.remove()
+
+    let verifyBtn = document.getElementById("verify");
+    if(verifyBtn){
+        verifyBtn.remove()
+    }
+
+    previousImageIdSet.clear()
+    clicks = 0
+}
+
+
+function verify(e){
+    let selectedImage = document.querySelectorAll(".selected");
+    let para = document.createElement("p");
+    if(selectedImage[0].className == selectedImage[1].className){
+        para.innerText = "You are a human. Congratulations!" 
     }
     else{
         para.innerText = "We can't verify you as a human. You selected the non-identical tiles."
     }
 
-    let verifyBtn = document.querySelector("#verify")
-    verifyBtn.remove()
-        
+    mainSection.append(para)
+
+    e.target.remove()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// for(let t of imagesClassNames){
-//     let pic = document.createElement("img")
-//     // <img src="" alt="">
-//     pic.className = t
-//     pic.alt = t
-
-//     container.append(pic)
-//     // container.prepend(pic)
-// }
